@@ -3,6 +3,12 @@ import WelcomePage from '@/features/auth/pages/WelcomePage';
 import { useSession } from '@/auth/SessionProvider';
 export default function LandingRoute() {
   const session = useSession();
-  if (session) return <Redirect href={session.types.includes('owner') && !session.types.includes('member') ? '/owner' : '/member/discover'} />;
+  if (session)
+  {
+    const destination = session.types.includes('owner') && !session.types.includes('member')
+      ? '/owner'
+      : '/member/discover';
+    return <Redirect href={destination} />;
+  }
   return <WelcomePage />;
 }

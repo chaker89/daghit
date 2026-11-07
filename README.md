@@ -2,7 +2,7 @@
 
 > Current integration stage: fixture data and mock login have been replaced with HTTP adapters and a persistent native JWT session. Read [Backend integration](docs/BACKEND_INTEGRATION.md) for the active contract, setup, limitations, and TODOs. Earlier prototype descriptions below are historical where they conflict with that document. No backend is deployed by this client change.
 
-Daghit is a Lebanon fitness marketplace prototype in an npm-workspaces monorepo. The mobile app is `apps/mobile/`; reusable React Native UI is published internally from `packages/ui/`; `packages/api-client/` reserves a place for adapters to the planned Laravel backend.
+Daghit is a Lebanon fitness marketplace client in an npm-workspaces monorepo. The mobile app is `apps/mobile/`; reusable React Native UI is in `packages/ui/`; the Axios client and endpoint functions are in `apps/mobile/src/api/`.
 
 ## Structure
 
@@ -14,7 +14,6 @@ apps/
     src/data/         Prototype fixtures and mock state
 packages/
   ui/                 Reusable primitives, composites, and map building blocks
-  api-client/         Future API boundary; no backend behavior yet
 ```
 
 Route and folder names avoid parentheses and brackets. Entity detail screens use stable route paths and query parameters. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/REUSABLE_UI.md](docs/REUSABLE_UI.md) for the component layers and map API.

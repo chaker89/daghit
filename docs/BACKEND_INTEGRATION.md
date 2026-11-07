@@ -2,15 +2,19 @@
 
 ## Current state — read this before development
 
-The mobile app no longer imports fixture users, venues, bookings, favorites, or owner gyms. All these screens use HTTP through `apps/mobile/src/api/client.ts` and the reusable transport in `packages/api-client/src/index.ts`. Login and signup require a real server response; there is no fake success, mock token, local user identity, or fallback catalog. Without configuration or a reachable backend, the UI reports a connection error and preserves guest navigation.
+The mobile app no longer imports fixture users, venues, bookings, favorites, or owner gyms. All these screens use Axios through the dedicated `apps/mobile/src/api/` folder. Login and signup require a real server response; there is no fake success, mock token, local user identity, or fallback catalog. Without configuration or a reachable backend, the UI reports a connection error and preserves guest navigation.
 
 This document supersedes earlier prototype/mock instructions for authentication and data access. It specifies a proposed client contract, not an implemented backend, final database schema, or approved booking/payment rules.
+
+## Where calls live
+
+Screens and feature providers call named functions from the central `apps/mobile/src/api/endpoints.ts` file, for example `signIn(credentials)` or `getMyBookings()`. Each function states its endpoint, HTTP method, input, authentication requirement, and response validator. Those functions call the shared `execute(path, options)` function in `apps/mobile/src/api/client.ts`, which handles the configured Axios instance, base URL, JWT header, timeout, and common errors. `response-validation.ts` holds response shape checks. Keep raw Axios calls, endpoint paths, and HTTP options out of screens and providers. Split endpoint functions into domain files when the central file becomes difficult to browse.
 
 ## Connect a backend
 
 1. Copy `apps/mobile/.env.example` to `apps/mobile/.env.local`.
 2. Set `EXPO_PUBLIC_API_URL` to the API base URL including its prefix, for example `https://api.example.com/api`.
-3. Implement the contract below, or change the centralized `endpoints` map and response adapters in `apps/mobile/src/api/client.ts` to match the backend. The base URL alone is sufficient only when the backend follows these paths and response shapes.
+3. Implement the contract below, or update the named endpoint functions and response validators in `apps/mobile/src/api/endpoints.ts` and `response-validation.ts` to match the backend. The base URL alone is sufficient only when the backend follows these paths and response shapes.
 4. Restart Metro (`npm run start`) so Expo picks up the environment change. On an Android phone, localhost refers to the phone; use an address reachable from the device. The transport enforces HTTPS in release builds; HTTP is allowed only during development. Public Expo environment variables are bundled into the app: never put secrets there.
 
 ## Proposed endpoints
@@ -31,6 +35,8 @@ Responses are direct JSON values, without a `data` envelope. Non-2xx statuses ar
 | POST | `/owner/gyms` | Owner-authenticated body `Omit<OwnerGym, "id">`; response saved `OwnerGym` with server ID |
 
 All authenticated calls send `Authorization: Bearer <accessToken>`. The backend derives the acting user from its verified token; the client does not send a trusted userId or ownerId in mutation bodies. Signup's onboardingPreference is a preference, never a permission grant. The backend decides returned capabilities and per-gym ownership.
+
+The favorite `PUT` uses the gym ID in the URL and intentionally sends no body: it means “ensure this gym is in my favorites.” The shared `execute` method supports request bodies for any method; for example login/signup send credentials and gym creation sends the gym fields. The server contract must agree with the bodyless favorite `PUT` semantics.
 
 The current discovery response is a full catalog. Gym and service details look up IDs in it, showing unavailable when missing. Geographic search, pagination, dedicated details endpoints, schedules, media, facilities, booking writes, and payments are not implemented. Do not present those as existing API capabilities.
 
@@ -74,6 +80,6 @@ Expired tokens are cleared when accessed, on foreground resume, and by an expiry
 
 ## Local checks
 
-Run `npm run lint`, `npm run typecheck`, and `node --test packages/api-client/tests/client.test.cjs`. The tests exercise bearer headers, public requests, 401/403 behavior, missing config/session, JWT expiry/capabilities, logout racing a pending login, and startup restoration/rejection of stored sessions. They use isolated fake fetch/storage; production app code has no mock transport.
+Run `npm run lint` and `npm run typecheck` after API or session changes. The app uses Axios directly; do not add a second transport abstraction or mock production responses to hide missing backend configuration.
 
 Secure storage follows the [Expo SDK 58 SecureStore documentation](https://docs.expo.dev/versions/v58.0.0/sdk/securestore/).

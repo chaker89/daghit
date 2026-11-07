@@ -16,14 +16,20 @@ type ViewportMode = 'nearby' | 'beirut' | 'no-results' | 'manual';
 
 function getCategoryItems(discoveryMapData: Record<MapCategory, MapListing[]>, category: MapCategory, trainerPlace: 'All' | 'Gym / studio' | 'At home') {
   const items = discoveryMapData[category];
-  if (category !== 'Personal training' || trainerPlace === 'All') return items;
+  if (category !== 'Personal training' || trainerPlace === 'All')
+  {
+    return items;
+  }
   return items.filter(item => trainerPlace === 'At home' ? item.serviceMode === 'home' : item.serviceMode === 'studio');
 }
 
 function openListing(listing: MapListing, category: MapCategory) {
-  if (category !== 'Gyms') {
+  if (category !== 'Gyms')
+  {
     router.push({ pathname: '/service/details', params: { id: listing.id } });
-  } else if (listing.gymId) {
+  }
+  else if (listing.gymId)
+  {
     router.push({ pathname: '/gym/details', params: { id: listing.gymId } });
   }
 }

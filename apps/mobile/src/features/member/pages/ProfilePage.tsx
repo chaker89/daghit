@@ -2,18 +2,17 @@ import { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import { Button, Screen, Wordmark, ui } from '@/components/prototype-ui';
-import { request, endpoints } from '@/api/client';
+import { getMyProfile } from '@/api/endpoints';
 import { useSession } from '@/auth/SessionProvider';
 import { signOut } from '@/auth/session';
-import type { Profile } from '@/data/models';
 export default function ProfilePage() {
   const session = useSession();
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<Awaited<ReturnType<typeof getMyProfile>> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let active = true;
-    void request<Profile>(endpoints.profile, { authenticated: true }).then(data => { if (active) { setProfile(data); setError(null); } }).catch(e => { if (active) setError(e.message); });
+    void getMyProfile().then(data => { if (active) { setProfile(data); setError(null); } }).catch(e => { if (active) setError(e.message); });
     return () => { active = false; };
   }, [session, attempt]);
   return <Screen><Wordmark small /><Text style={ui.title}>My account</Text>

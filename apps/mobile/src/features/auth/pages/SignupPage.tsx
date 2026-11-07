@@ -1,4 +1,4 @@
-import { request, endpoints } from '@/api/client';
+import { signUp } from '@/api/endpoints';
 import { signInToken } from '@/auth/session';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -14,14 +14,19 @@ export default function SignupScreen() {
 
   const [busy, setBusy] = useState(false);
   const createAccount = async () => {
-    if (busy) return;
-    if (!name.trim() || !email.trim() || !password.trim()) {
+    if (busy)
+    {
+      return;
+    }
+    const missingCredentials = !name.trim() || !email.trim() || !password.trim();
+    if (missingCredentials)
+    {
       Alert.alert('Complete your details', 'Enter your name, email, and password to continue.');
       return;
     }
     setBusy(true);
     try {
-      const result = await request<{ accessToken: string }>(endpoints.signup, { method: 'POST', body: { name: name.trim(), email: email.trim(), password, onboardingPreference: role === 'owner' ? 'owner' : 'member' } });
+      const result = await signUp({ name: name.trim(), email: email.trim(), password, onboardingPreference: role === 'owner' ? 'owner' : 'member' });
       const session = await signInToken(result.accessToken);
       router.replace(session.types.includes('owner') && !session.types.includes('member') ? '/owner' : '/member/discover');
     } catch (e) { Alert.alert('Unable to create account', e instanceof Error ? e.message : 'Please try again.'); }

@@ -29,7 +29,10 @@ export function useDeviceLocation() {
   useEffect(() => {
     let active = true;
     void readDeviceLocation(null).then(result => {
-      if (!active) return;
+      if (!active)
+      {
+        return;
+      }
       locationRef.current = result.location;
       setLocation(result.location);
       setStatus(result.status);
@@ -45,8 +48,14 @@ export function useDeviceLocation() {
 async function readDeviceLocation(fallback: LatLng | null): Promise<LocationAttempt> {
   try {
     let permission = await Location.getForegroundPermissionsAsync();
-    if (!permission.granted) permission = await Location.requestForegroundPermissionsAsync();
-    if (!permission.granted) return { location: null, status: 'permission-denied' };
+    if (!permission.granted)
+    {
+      permission = await Location.requestForegroundPermissionsAsync();
+    }
+    if (!permission.granted)
+    {
+      return { location: null, status: 'permission-denied' };
+    }
 
     const lastKnown = await Location.getLastKnownPositionAsync({ maxAge: 120_000, requiredAccuracy: 1_000 });
     try {

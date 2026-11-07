@@ -1,4 +1,4 @@
-import { request, endpoints } from '@/api/client';
+import { signIn } from '@/api/endpoints';
 import { signInToken } from '@/auth/session';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -10,14 +10,19 @@ export default function LoginScreen() {
   const [email, setEmail] = useState(''); const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const login = async () => {
-    if (busy) return;
-    if (!email.trim() || !password.trim()) {
+    if (busy)
+    {
+      return;
+    }
+    const missingCredentials = !email.trim() || !password.trim();
+    if (missingCredentials)
+    {
       Alert.alert('Complete your details', 'Enter your email and password to continue.');
       return;
     }
     setBusy(true);
     try {
-      const result = await request<{ accessToken: string }>(endpoints.login, { method: 'POST', body: { email: email.trim(), password } });
+      const result = await signIn({ email: email.trim(), password });
       const session = await signInToken(result.accessToken);
       router.replace(session.types.includes('owner') && !session.types.includes('member') ? '/owner' : '/member/discover');
     } catch (e) { Alert.alert('Unable to log in', e instanceof Error ? e.message : 'Please try again.'); }

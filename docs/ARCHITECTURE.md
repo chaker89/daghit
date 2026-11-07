@@ -7,7 +7,7 @@
 - `apps/mobile/` is the Expo SDK 58 client. Expo Router route files are kept thin in `apps/mobile/src/app/`; reusable page implementations, domain-facing feature logic, and screen components live in `apps/mobile/src/features/`.
 - `packages/ui/` is the cross-project React Native component package. `components/primitives/` contains basic controls, `components/composites/` contains composed building blocks, and `components/maps/` exposes a generic map surface, pins, callouts, selection preview banner, and overlay boxes. `MapExplorer` accepts generic coordinate items and delegates opening a full detail view to its consumer.
 - Feature-specific state and screen coordination belong in feature pages or feature hooks; presentation primitives stay in the UI package. Extract logic into hooks when it is shared or when keeping a page focused on composition improves clarity.
-- `packages/api-client/` reserves a boundary for production backend adapters to the planned Laravel backend. It currently has no API behavior because API contracts and authentication are undecided.
+- Mobile HTTP calls use Axios in `apps/mobile/src/api/client.ts`; named endpoint functions and response validation are centralized in the same dedicated API folder. Laravel is the planned backend, but contracts remain subject to backend agreement.
 - Workspace package and folder names use plain names without route-group parentheses or dynamic-segment brackets. Routes that need an entity identifier use a stable detail path with query parameters.
 
 ## Mobile client

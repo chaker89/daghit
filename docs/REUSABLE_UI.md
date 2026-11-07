@@ -71,6 +71,6 @@ The app supplies the region, items, styling overrides, overlays, and details act
 - **Routes** live in `apps/mobile/src/app/` and stay as thin Expo Router entries.
 - **Pages** live in `apps/mobile/src/features/<feature>/pages/`. They assemble shared UI and feature components and coordinate page-level state or navigation.
 - **Feature components** live in `apps/mobile/src/features/<feature>/components/`. They are appropriate for UI whose content or behavior depends on Daghit domain concepts.
-- **Data adapters** live outside UI components. HTTP transport lives in `packages/api-client/`; mobile endpoint adapters are in `apps/mobile/src/api/` and domain view types/providers are in `apps/mobile/src/data/`. Read `BACKEND_INTEGRATION.md` for the current contract.
+- **Data adapters** live outside UI components. Mobile endpoint functions and the Axios client live in `apps/mobile/src/api/`; domain view types/providers are in `apps/mobile/src/data/`. Read `BACKEND_INTEGRATION.md` for the current contract.
 
 React Native styles use `StyleSheet` in TypeScript. Standalone CSS does not style native Android or iOS views; colocate native styles in `*.styles.ts` files.
