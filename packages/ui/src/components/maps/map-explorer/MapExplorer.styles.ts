@@ -1,0 +1,37 @@
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+  overlay: { flex: 1 },
+  previewWrap: { position: 'absolute', left: 12, right: 12, bottom: 14 },
+  preview: {
+    minHeight: 84,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 18,
+    backgroundColor: 'white',
+    elevation: 5,
+    shadowColor: '#143A3C',
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+  },
+  copy: { flex: 1, marginRight: 12 },
+  title: { color: '#183234', fontSize: 14, fontWeight: '800' },
+  subtitle: { color: '#657778', fontSize: 12, marginTop: 4 },
+  action: { color: '#087F78', fontSize: 12, fontWeight: '800' },
+  close: {
+    position: 'absolute',
+    top: -8,
+    right: -5,
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 14,
+    backgroundColor: 'white',
+    elevation: 4,
+  },
+  closeText: { color: '#657778', fontSize: 19, lineHeight: 22 },
+});
