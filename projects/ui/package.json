@@ -13,5 +13,10 @@
     "react-native": "*",
     "react-native-maps": "*",
     "react-native-safe-area-context": "*"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit"
   }
 }

@@ -36,3 +36,7 @@ Turn these notes into a reviewed ERD and API contracts only after the remaining 
 ## Confirmed product scope
 
 Bookable offerings include studio/gym classes, personal training at a gym or studio, and personal training at a member's home. Bookings support subscription-based credits and a one-off option; whether one-off means buying credits or paying directly for a session remains unresolved. These are product requirements only; trainer/provider representation, credit packs, ledger design, and business rules remain unresolved. Do not infer a database schema from these terms.
+
+## Server implementation update
+
+A Koa server now lives in `projects/server`, with shared API contracts in `projects/typings` and Lerna/Nx affected builds. Earlier Laravel/no-backend notes are historical. See `SERVER.md` for current implementation, local SQLite adapter, limits, and setup. The local storage schema does not settle outstanding booking/payment/business rules.

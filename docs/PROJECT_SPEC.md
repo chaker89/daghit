@@ -17,7 +17,7 @@ This document records confirmed product scope for the mobile prototype. It is ba
 ## First prototype milestone
 
 - Welcome, login, signup, and member/gym-owner onboarding choice with clearly mocked authentication.
-- Member discovery with an interactive map and a list view; mock venues appear as selectable markers with basic details. Use foreground device location when permitted; fall back to Beirut if access is denied or unavailable. Fit the initial viewport to the device location and up to three nearest mock results when they are in the same local area. Three is a viewport heuristic matching the fixtures, not a service-area or booking rule. Generic map primitives are shared from `packages/ui`; Daghit-specific map composition lives in the discovery feature.
+- Member discovery with an interactive map and a list view; mock venues appear as selectable markers with basic details. Use foreground device location when permitted; fall back to Beirut if access is denied or unavailable. Fit the initial viewport to the device location and up to three nearest mock results when they are in the same local area. Three is a viewport heuristic matching the fixtures, not a service-area or booking rule. Generic map primitives are shared from `projects/ui`; Daghit-specific map composition lives in the discovery feature.
 - Guest browsing without subscription gating.
 - Owner dashboard and add-gym form with name, type, description, city, street address, and geographic coordinates; support multiple locally stored mock gyms.
 - Validate required form fields and confirm that a gym was saved as a local mock record.
@@ -34,3 +34,7 @@ This document records confirmed product scope for the mobile prototype. It is ba
 The following remain undecided and must not be inferred in client behavior: API contracts and permission storage; authentication method; gym/provider approval and trainer representation; plan definitions, prices, credit amounts and eligibility; one-off purchase semantics; session credit costs; credit ledger, holds, debits, refunds; booking cutoff, cancellation, no-show, and payout rules; home-visit service areas and address handling; payment provider, invoices, reconciliation; and final map provider/location capture rules. Laravel is the planned backend framework, but no backend integration or domain/API contract is implemented here.
 
 See `DATA_MODEL.md` for conceptual entities and relationships. Those notes are not an approved database schema.
+
+## Server implementation update
+
+A Koa server now lives in `projects/server`, with shared API contracts in `projects/typings` and Lerna/Nx affected builds. Earlier Laravel/no-backend notes are historical. See `SERVER.md` for current implementation, local SQLite adapter, limits, and setup. The local storage schema does not settle outstanding booking/payment/business rules.

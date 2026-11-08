@@ -9,15 +9,8 @@ import {
 } from './response-validation';
 import type { Booking, Catalog, OwnerGym, Profile } from '@/data/models';
 
-export type LoginCredentials = {
-  email: string;
-  password: string;
-};
-
-export type SignupDetails = LoginCredentials & {
-  name: string;
-  onboardingPreference: 'member' | 'owner';
-};
+import type { LoginCredentials, SignupDetails } from '@daghit/typings';
+export type { LoginCredentials, SignupDetails } from '@daghit/typings';
 
 export const signIn = (credentials: LoginCredentials) => {
   return execute<{ accessToken: string }>('/auth/login', {
@@ -36,17 +29,25 @@ export const signUp = (details: SignupDetails) => {
 }
 
 export const getDiscovery = () => {
-  return execute<Catalog>('/discovery', { validate: isCatalogResponse });
+  return execute<Catalog>('/discovery', {
+    validate: isCatalogResponse,
+  });
 }
 
 export const getMyProfile = () => {
-  return execute<Profile>('/me', { authenticated: true, validate: isProfileResponse });
+  return execute<Profile>('/me', {
+    authenticated: true,
+    validate: isProfileResponse,
+  });
 }
 
 export const getMyBookings = () => {
   return execute<Record<'upcoming' | 'previous' | 'canceled', Booking[]>>(
     '/me/bookings',
-    { authenticated: true, validate: isBookingsResponse },
+    {
+      authenticated: true,
+      validate: isBookingsResponse,
+    },
   );
 }
 

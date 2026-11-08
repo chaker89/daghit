@@ -2,15 +2,32 @@
   "name": "daghit-workspace",
   "private": true,
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "projects/*"
   ],
   "scripts": {
     "start": "npm run start --workspace @daghit/mobile",
     "android": "npm run android --workspace @daghit/mobile",
     "ios": "npm run ios --workspace @daghit/mobile",
     "web": "npm run web --workspace @daghit/mobile",
-    "lint": "npm run lint --workspace @daghit/mobile",
-    "typecheck": "npm run typecheck --workspace @daghit/mobile"
+    "lint": "lerna run lint",
+    "typecheck": "lerna run typecheck",
+    "start:server": "npm run dev --workspace @daghit/server",
+    "build": "lerna run build",
+    "build:changed": "lerna run build --include-dependents --since",
+    "test:server": "npm run test --workspace @daghit/server",
+    "check:changed": "node scripts/affected.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "devDependencies": {
+    "lerna": "^10.1.1",
+    "nx": "^23.3.1",
+    "typescript": "~6.0.3"
+  },
+  "overrides": {
+    "nx": {
+      "undici": "^7.30.1"
+    }
   }
 }

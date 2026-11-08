@@ -1,40 +1,39 @@
 # Daghit
 
-> Current integration stage: fixture data and mock login have been replaced with HTTP adapters and a persistent native JWT session. Read [Backend integration](docs/BACKEND_INTEGRATION.md) for the active contract, setup, limitations, and TODOs. Earlier prototype descriptions below are historical where they conflict with that document. No backend is deployed by this client change.
-
-Daghit is a Lebanon fitness marketplace client in an npm-workspaces monorepo. The mobile app is `apps/mobile/`; reusable React Native UI is in `packages/ui/`; the Axios client and endpoint functions are in `apps/mobile/src/api/`.
-
-## Structure
+Lebanon fitness marketplace in a Lerna/npm-workspaces monorepo.
 
 ```text
-apps/
-  mobile/
-    src/app/          Expo Router route entries only
-    src/features/     Pages and feature-specific components
-    src/data/         Prototype fixtures and mock state
-packages/
-  ui/                 Reusable primitives, composites, and map building blocks
+projects/
+  mobile/       Expo React Native app
+  server/       Koa API
+  typings/      Shared API types
+  ui/           Reusable React Native components
 ```
 
-Route and folder names avoid parentheses and brackets. Entity detail screens use stable route paths and query parameters. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/REUSABLE_UI.md](docs/REUSABLE_UI.md) for the component layers and map API.
+Use Node 24 and run `npm ci` at the root. Follow [server and monorepo setup](docs/SERVER.md) to configure a server-only JWT secret and the mobile API URL.
 
-## Run on Android with Expo Go
-
-```bash
+```sh
+npm run start:server
 npm run start
-```
-
-Connect the phone and development computer to the same network, scan the Expo Go QR code, and open the project. If the bundler is not reachable over the local network, run `npm run start --workspace @daghit/mobile -- --tunnel`.
-
-## Checks
-
-```bash
 npm run lint
 npm run typecheck
+npm run build
+npm run test:server
+npm run check:changed -- origin/main
 ```
 
-The app itself can also be run from `apps/mobile/` with `npx expo start`.
+Run the two start commands in separate terminals. Lerna orders builds using workspace dependencies and caches unchanged outputs. CI selects changed packages and their dependents. Mobile builds export Android/iOS bundles; native signing and store submission are separate EAS work.
 
-## Product boundary
+## Build and rebuild reference
 
-The prototype uses mock authentication, listings, owner gym records, favorites, and sample profile/booking data. Client state is not authorization, ownership, payment, booking, subscription, or credit proof. Laravel is planned for the later backend; API/auth contracts and other product questions remain open. See [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md) and [docs/DATA_MODEL.md](docs/DATA_MODEL.md).
+Run these commands from the repository root:
+
+| Goal | Command | Behavior |
+| --- | --- | --- |
+| Build all projects, reusing unchanged results | `npm run build` | Selects all projects and restores cached outputs when inputs match. |
+| Build only changed projects and their dependents | `npm run build:changed -- origin/main` | Compares against the Git reference and uses cached outputs where possible. Replace `origin/main` with your intended base branch or commit. |
+| Force a full rebuild | `npm run build -- --skip-nx-cache` | Selects all projects and runs their builds without reusing cached results. |
+
+Use the full build commands for newly created or uncommitted workspaces. These builds compile server code and export mobile bundles; they do not sign or submit native apps.
+
+See [API and session contract](docs/BACKEND_INTEGRATION.md), [reusable UI](docs/REUSABLE_UI.md), [product context](docs/PROJECT_SPECS.md), and [data model planning](docs/DATA_MODEL.md).

@@ -49,3 +49,7 @@ Bookings can use subscription-based credits or a one-off option. Whether the one
 - Home visit service areas, address privacy/collection, travel constraints, and fulfillment.
 - External payment provider, invoices, and transaction reconciliation.
 - Gym location capture and final map provider.
+
+## Server implementation update
+
+A Koa server now lives in `projects/server`, with shared API contracts in `projects/typings` and Lerna/Nx affected builds. Earlier Laravel/no-backend notes are historical. See `SERVER.md` for current implementation, local SQLite adapter, limits, and setup. The local storage schema does not settle outstanding booking/payment/business rules.

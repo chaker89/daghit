@@ -2,7 +2,8 @@ import * as SecureStore from 'expo-secure-store';
 import { jwtDecode } from 'jwt-decode';
 import { Platform } from 'react-native';
 
-export type AccountType = 'member' | 'owner' | 'admin';
+import type { AccountType } from '@daghit/typings';
+export type { AccountType } from '@daghit/typings';
 export type Session = {
   accessToken: string;
   userId: string;
@@ -10,32 +11,38 @@ export type Session = {
   expiresAt: number;
 };
 
+// SecureStore saves values under a text key. This key names the one value containing our JWT.
 const key = 'daghit.accessToken';
-// Keep the active session in memory so screens and API requests can read the same identity.
+// This copy is only in app memory. It lets screens and requests use the session without reading storage each time.
 let session: Session | null = null;
 // A version counter prevents a slow storage read or login from restoring an older session.
 let generation = 0;
 const listeners = new Set<() => void>();
-// Serialize writes so a late save cannot overwrite a newer logout or login.
-let storageQueue = Promise.resolve();
+// SecureStore writes are asynchronous. Queue them in order so an older save cannot finish after a newer logout.
+let storageWriteQueue = Promise.resolve();
 
-const persist = (token: string | null) => {
-  const write = async () => {
-    // Native apps keep the token in the OS secure store. Web needs a cookie-based session contract.
+// Save a token on iOS/Android, or remove it when token is null. The returned promise lets login/logout wait for storage.
+const storeToken = (token: string | null) => {
+  const writeToken = async () => {
+    // Expo SecureStore uses the device's secure storage. We do not persist a token on web;
+    // web login needs a backend cookie contract before it can survive a page reload.
     if (Platform.OS === 'web') {
       return;
     }
 
     if (token) {
+      // Login: write the new JWT under the key above, replacing any previous value.
       await SecureStore.setItemAsync(key, token);
       return;
     }
 
+    // Logout or expiry: remove the saved JWT so the next launch cannot restore it.
     await SecureStore.deleteItemAsync(key);
   };
 
-  storageQueue = storageQueue.catch(() => {}).then(write);
-  return storageQueue;
+  // Keep this write behind the previous one. If that write failed, catch lets this one still run.
+  storageWriteQueue = storageWriteQueue.catch(() => {}).then(writeToken);
+  return storageWriteQueue;
 };
 
 // Read the identity and capabilities the UI needs from the server-issued JWT.
@@ -103,7 +110,8 @@ const publish = (value: Session | null) => {
 export const signInToken = async (token: string) => {
   const next = decodeSession(token);
   const version = ++generation;
-  await persist(token);
+  // Wait until the token is saved before publishing the session or opening signed-in screens.
+  await storeToken(token);
 
   // A logout or newer login may have happened while secure storage was writing.
   if (version !== generation) {
@@ -114,10 +122,10 @@ export const signInToken = async (token: string) => {
   return next;
 };
 
-// Clear memory immediately, then remove the saved token from secure storage.
+// Remove the in-memory session immediately, then delete the saved token from secure storage.
 export const signOut = () => {
   publish(null);
-  return persist(null);
+  return storeToken(null);
 };
 
 // Axios calls this just before sending a protected request; expired tokens are discarded.

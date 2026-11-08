@@ -2,24 +2,26 @@
 
 ## Current state — read this before development
 
-The mobile app no longer imports fixture users, venues, bookings, favorites, or owner gyms. All these screens use Axios through the dedicated `apps/mobile/src/api/` folder. Login and signup require a real server response; there is no fake success, mock token, local user identity, or fallback catalog. Without configuration or a reachable backend, the UI reports a connection error and preserves guest navigation.
+The Koa backend is now implemented in `projects/server`. Follow `SERVER.md` to start it. API contracts are shared from `projects/typings`. This update supersedes earlier notes that the backend was not implemented.
 
-This document supersedes earlier prototype/mock instructions for authentication and data access. It specifies a proposed client contract, not an implemented backend, final database schema, or approved booking/payment rules.
+The mobile app no longer imports fixture users, venues, bookings, favorites, or owner gyms. All these screens use Axios through the dedicated `projects/mobile/src/api/` folder. Login and signup require a real server response; there is no fake success, mock token, local user identity, or fallback catalog. Without configuration or a reachable backend, the UI reports a connection error and preserves guest navigation.
+
+This document supersedes earlier prototype/mock instructions for authentication and data access. It specifies the implemented client/server HTTP contract, not a final production database schema or approved booking/payment rules.
 
 ## Where calls live
 
-Screens and feature providers call named functions from the central `apps/mobile/src/api/endpoints.ts` file, for example `signIn(credentials)` or `getMyBookings()`. Each function states its endpoint, HTTP method, input, authentication requirement, and response validator. Those functions call the shared `execute(path, options)` function in `apps/mobile/src/api/client.ts`, which handles the configured Axios instance, base URL, JWT header, timeout, and common errors. `response-validation.ts` holds response shape checks. Keep raw Axios calls, endpoint paths, and HTTP options out of screens and providers. Split endpoint functions into domain files when the central file becomes difficult to browse.
+Screens and feature providers call named functions from the central `projects/mobile/src/api/endpoints.ts` file, for example `signIn(credentials)` or `getMyBookings()`. Each function states its endpoint, HTTP method, input, authentication requirement, and response validator. Those functions call the shared `execute(path, options)` function in `projects/mobile/src/api/client.ts`, which handles the configured Axios instance, base URL, JWT header, timeout, and common errors. `response-validation.ts` holds response shape checks. Keep raw Axios calls, endpoint paths, and HTTP options out of screens and providers. Split endpoint functions into domain files when the central file becomes difficult to browse.
 
 ## Connect a backend
 
-1. Copy `apps/mobile/.env.example` to `apps/mobile/.env.local`.
+1. Copy `projects/mobile/.env.example` to `projects/mobile/.env.local`.
 2. Set `EXPO_PUBLIC_API_URL` to the API base URL including its prefix, for example `https://api.example.com/api`.
-3. Implement the contract below, or update the named endpoint functions and response validators in `apps/mobile/src/api/endpoints.ts` and `response-validation.ts` to match the backend. The base URL alone is sufficient only when the backend follows these paths and response shapes.
+3. Implement the contract below, or update the named endpoint functions and response validators in `projects/mobile/src/api/endpoints.ts` and `response-validation.ts` to match the backend. The base URL alone is sufficient only when the backend follows these paths and response shapes.
 4. Restart Metro (`npm run start`) so Expo picks up the environment change. On an Android phone, localhost refers to the phone; use an address reachable from the device. The transport enforces HTTPS in release builds; HTTP is allowed only during development. Public Expo environment variables are bundled into the app: never put secrets there.
 
 ## Proposed endpoints
 
-Responses are direct JSON values, without a `data` envelope. Non-2xx statuses are errors. Arrays must be actual arrays, including when empty. The adapter checks core response structure before storing data; the complete field contract is in `apps/mobile/src/data/models.ts`. Align and strengthen runtime validation when the final backend contract is approved.
+Responses are direct JSON values, without a `data` envelope. Non-2xx statuses are errors. Arrays must be actual arrays, including when empty. The adapter checks core response structure before storing data; the complete field contract is in `projects/mobile/src/data/models.ts`. Align and strengthen runtime validation when the final backend contract is approved.
 
 | Method | Path | Request / response |
 | --- | --- | --- |
@@ -62,7 +64,7 @@ Expired tokens are cleared when accessed, on foreground resume, and by an expiry
 
 - Read this document, `PROJECT_SPECS.md`, and `DATA_MODEL.md` before changing API/session code.
 - Keep transport reusable; keep endpoint paths, DTO mapping, auth persistence, and product behavior in their documented layers.
-- Preserve generic map/UI props. Supply backend data from features, never import API or session state into `packages/ui`.
+- Preserve generic map/UI props. Supply backend data from features, never import API or session state into `projects/ui`.
 - Show loading, empty, unavailable, and request-error states. Await successful writes before reporting success. Never restore fixture fallbacks to hide missing endpoints.
 - Never log tokens or passwords, store them in source/environment files, or persist credentials in plain preferences.
 - Preserve guest discovery; guard profile, bookings, favorites, and owner routes. Owner controls use server-issued capabilities; the server remains authoritative.
@@ -71,7 +73,7 @@ Expired tokens are cleared when accessed, on foreground resume, and by an expiry
 ## Backend integration TODOs
 
 - Confirm every endpoint, envelope, field, claim name, and identifier type with backend owners. Add final runtime DTO schemas/adapters and pagination/search contracts.
-- Implement token issuance and verification, account creation, `/me`, ownership checks, 401/403 semantics, and rate limiting on the server.
+- Token issuance/verification, account creation, `/me`, owner capability checks, 401/403 semantics, and process-local auth rate limiting are implemented. Add reviewed gym approval and finer ownership management before expanding writes.
 - Decide access-token lifetime, refresh-token rotation/reuse detection, revocation/logout, and password-reset/verification flows. Add client refresh only after this contract exists.
 - Decide web cookie/session strategy and CORS; native and web have different persistence requirements.
 - Test real Android/iOS login, restart restoration, expired/revoked tokens, offline launch, logout storage failures, account switching, denied owner access, and all data/mutation errors against a staging backend.

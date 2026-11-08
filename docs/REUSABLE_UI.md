@@ -2,7 +2,7 @@
 
 ## Reuse rule
 
-Build UI as a shared component when it can work in another app without Daghit product rules. Place it in `packages/ui/`, and pass its content and actions as typed props. Keep Daghit-specific data mapping, branding, navigation, and business rules in `apps/mobile/src/features/`.
+Build UI as a shared component when it can work in another app without Daghit product rules. Place it in `projects/ui/`, and pass its content and actions as typed props. Keep Daghit-specific data mapping, branding, navigation, and business rules in `projects/mobile/src/features/`.
 
 Organize every shared component in its own folder. Keep its TSX implementation, optional `*.styles.ts`, and `index.ts` export together. Use:
 
@@ -68,9 +68,9 @@ The app supplies the region, items, styling overrides, overlays, and details act
 
 ## Feature and route structure
 
-- **Routes** live in `apps/mobile/src/app/` and stay as thin Expo Router entries.
-- **Pages** live in `apps/mobile/src/features/<feature>/pages/`. They assemble shared UI and feature components and coordinate page-level state or navigation.
-- **Feature components** live in `apps/mobile/src/features/<feature>/components/`. They are appropriate for UI whose content or behavior depends on Daghit domain concepts.
-- **Data adapters** live outside UI components. Mobile endpoint functions and the Axios client live in `apps/mobile/src/api/`; domain view types/providers are in `apps/mobile/src/data/`. Read `BACKEND_INTEGRATION.md` for the current contract.
+- **Routes** live in `projects/mobile/src/app/` and stay as thin Expo Router entries.
+- **Pages** live in `projects/mobile/src/features/<feature>/pages/`. They assemble shared UI and feature components and coordinate page-level state or navigation.
+- **Feature components** live in `projects/mobile/src/features/<feature>/components/`. They are appropriate for UI whose content or behavior depends on Daghit domain concepts.
+- **Data adapters** live outside UI components. Mobile endpoint functions and the Axios client live in `projects/mobile/src/api/`; domain view types/providers are in `projects/mobile/src/data/`. Read `BACKEND_INTEGRATION.md` for the current contract.
 
 React Native styles use `StyleSheet` in TypeScript. Standalone CSS does not style native Android or iOS views; colocate native styles in `*.styles.ts` files.
