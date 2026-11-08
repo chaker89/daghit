@@ -69,6 +69,15 @@ export type Profile = {
 
 export type AccountType = 'member' | 'owner' | 'admin';
 
+// Safe identity information that services may carry after verifying the bearer token.
+export type AuthenticatedUser = {
+  id: string;
+  email: string;
+  name: string;
+  phone: string;
+  types: AccountType[];
+};
+
 export type LoginCredentials = {
   email: string;
   password: string;

@@ -1,8 +1,11 @@
 import type Router from '@koa/router';
 import type { State } from '../auth.js';
+import { checkPassword, createRequestIdentity, hashPassword, issueToken, type AuthConfig } from '../auth.js';
 import type { Repository } from '../repository.js';
-import { checkPassword, hashPassword, issueToken, type AuthConfig } from '../auth.js';
 import { credentials, signup } from '../validation/auth.js';
+
+// Reuse one dummy hash so unknown accounts still perform a password comparison.
+const dummyHash = hashPassword('nonexistent-account-password');
 
 export const registerAuthRoutes = (router: Router<State>, repository: Repository, config: AuthConfig) => {
   router.post('/auth/signup', async ctx => {
@@ -24,10 +27,13 @@ export const registerAuthRoutes = (router: Router<State>, repository: Repository
       passwordHash,
       types: ['member'],
     });
+    const accessToken = await issueToken(user, config);
+    Object.assign(ctx.state, createRequestIdentity(user, accessToken));
     ctx.status = 201;
-    ctx.body = { accessToken: await issueToken(user, config) };
+    ctx.body = { accessToken };
   });
-  const dummyHash = hashPassword('nonexistent-account-password');
+
+
   router.post('/auth/login', async ctx => {
     const input = credentials.parse(ctx.request.body);
     const user = repository.userByEmail(input.email);
@@ -36,6 +42,9 @@ export const registerAuthRoutes = (router: Router<State>, repository: Repository
     {
       return ctx.throw(401, 'Invalid credentials');
     }
-    ctx.body = { accessToken: await issueToken(user, config) };
+
+    const accessToken = await issueToken(user, config);
+    Object.assign(ctx.state, createRequestIdentity(user, accessToken));
+    ctx.body = { accessToken };
   });
 };

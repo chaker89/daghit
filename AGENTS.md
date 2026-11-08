@@ -50,6 +50,7 @@ Docs: https://docs.expo.dev/eas/index.md
 - Before creating a one-off UI element, check whether an existing shared primitive or composite can be extended. Prefer a small generic API that covers real use cases; avoid both copy-pasting app-specific components and adding speculative abstractions with no consumer.
 - Keep conditional code easy to scan: put `if` bodies on separate lines, use braces for every branch, and place each opening brace on a new line. Break long conditions into named booleans or multiline expressions so the condition is readable.
 - Prefer `const name = (...) => { ... }` for functions, including exported functions. Follow the existing `if` brace style inside those arrow functions.
+- Group module-level constant values after imports/types and before function definitions; do not place them between exported functions. Keep request-dependent values in their execution order so validation and authentication still happen before database writes or other side effects.
 - Keep each Zod schema field, object property, and type member on its own line when defining multiple fields. Expand callbacks with statements into multiline bodies. Break long method chains and nested objects across lines; do not compress several fields or operations into one line. Apply this to request options, response objects, and shared API types as well as validation schemas.
 - Read `docs/PROJECT_SPECS.md` and `docs/DATA_MODEL.md` before product or data-model work. Keep open questions unresolved unless the product owner decides them.
 - Use Expo Router for screens in `projects/mobile/src/app/`; put shared UI in `projects/ui/` and mobile feature logic in `projects/mobile/src/features/`.
@@ -139,6 +140,8 @@ Read `docs/BACKEND_INTEGRATION.md` before changing app data, login, session stor
 ## Koa server and Lerna — current instructions
 
 Keep `projects/server/src/app.ts` limited to creating Koa and registering imported middleware and route groups. Define endpoint handlers in `src/routes/`, middleware in `src/middlewares/`, and request schemas in `src/validation/`. Keep route registration in `routes/index.ts` and global middleware ordering in `middlewares/index.ts`.
+
+Carry verified request identity through `ctx.state.user` and `ctx.state.accessToken`, using `createRequestIdentity` to exclude password hashes. Never trust client-provided `body.user` for authorization. Future server-to-server calls must explicitly forward a bearer token, with the receiving service verifying its issuer/audience/signature and rebuilding its own identity context. Do not log tokens or serialize the whole Koa state into a response.
 
 Read `docs/SERVER.md` for backend/workspace work. Koa in `projects/server` replaces earlier planned Laravel references; keep the existing mobile app in `projects/mobile`. Shared API types belong in `projects/typings`, with no platform/runtime dependencies. Both apps must declare their dependency on that package so Lerna tracks affected consumers. Keep SQLite access in the server repository module; a separate database service is future work. Never treat a signup preference as a capability grant. New gyms remain private until a reviewed approval flow exists. Keep server JWT secrets out of mobile variables and tracked files.
 

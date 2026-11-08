@@ -1,6 +1,6 @@
 import { jwtVerify } from 'jose';
 import type { Middleware } from 'koa';
-import type { AuthConfig, State } from '../auth.js';
+import { createRequestIdentity, type AuthConfig, type State } from '../auth.js';
 import type { Repository } from '../repository.js';
 
 export const authenticate = (repository: Repository, config: AuthConfig): Middleware<State> => async (ctx, next) => {
@@ -9,8 +9,9 @@ export const authenticate = (repository: Repository, config: AuthConfig): Middle
   {
     ctx.throw(401, 'Authentication required');
   }
+  const accessToken = authorization.slice(7);
   try {
-    const { payload } = await jwtVerify(authorization.slice(7), new TextEncoder().encode(config.secret), {
+    const { payload } = await jwtVerify(accessToken, new TextEncoder().encode(config.secret), {
       algorithms: ['HS256'],
       issuer: 'daghit-server',
       audience: 'daghit-mobile',
@@ -20,8 +21,10 @@ export const authenticate = (repository: Repository, config: AuthConfig): Middle
     {
       return ctx.throw(401, 'Invalid session');
     }
-    // Database capabilities are authoritative even if a JWT contains older role claims.
-    ctx.state.user = user;
+    // Downstream middleware/routes share this verified identity via ctx.state.
+    // Explicitly select safe fields: the repository record also contains a password hash.
+    // Current database capabilities are authoritative even if JWT role claims are older.
+    Object.assign(ctx.state, createRequestIdentity(user, accessToken));
   } catch {
     ctx.throw(401, 'Invalid or expired session');
   }

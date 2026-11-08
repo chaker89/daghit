@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createApp } from '../src/app.js';
 import { createRepository } from '../src/repository.js';
-import { issueToken } from '../src/auth.js';
+import { issueToken, type State } from '../src/auth.js';
 
 const config = { secret: 'test-secret-only-not-for-deployment-123456', ttlSeconds: 3600 };
 
@@ -14,7 +14,13 @@ test('API auth, owner authorization, validation, and durable private gyms', asyn
   const folder = mkdtempSync(join(tmpdir(), 'daghit-'));
   const path = join(folder, 'test.sqlite');
   let repository = createRepository(path);
-  const server = createApp(repository, config).listen(0, '127.0.0.1');
+  let observedState: Partial<State> = {};
+  const app = createApp(repository, config);
+  app.middleware.unshift(async (ctx, next) => {
+    await next();
+    observedState = { ...ctx.state };
+  });
+  const server = app.listen(0, '127.0.0.1');
   await once(server, 'listening');
   const address = server.address() as { port: number };
   const call = async (route: string, method = 'GET', body?: unknown, token?: string) => {
@@ -30,12 +36,20 @@ test('API auth, owner authorization, validation, and durable private gyms', asyn
     const input = { name: 'Member', email: 'person@example.com', password: 'long-test-password', onboardingPreference: 'owner' };
     const signup = await call('/auth/signup', 'POST', input);
     assert.equal(signup.status, 201);
+    assert.equal(observedState.user?.email, input.email);
+    assert.equal(observedState.accessToken, signup.body.accessToken);
+    assert.equal(Object.hasOwn(observedState.user!, 'passwordHash'), false);
     assert.equal((await call('/owner/gyms', 'GET', undefined, signup.body.accessToken)).status, 403);
+    const spoofedIdentity = { user: { id: 'another-user', types: ['owner'] } };
+    assert.equal((await call('/owner/gyms', 'POST', spoofedIdentity, signup.body.accessToken)).status, 403);
     assert.equal((await call('/auth/login', 'POST', { email: input.email, password: 'incorrect-password' })).status, 401);
     assert.equal((await call('/auth/signup', 'POST', input)).status, 409);
     const profile = await call('/me', 'GET', undefined, signup.body.accessToken);
     assert.equal(profile.body.email, input.email);
     assert.equal(profile.body.passwordHash, undefined);
+    assert.equal(observedState.user?.id, profile.body.id);
+    assert.equal(observedState.accessToken, signup.body.accessToken);
+    assert.equal(Object.hasOwn(observedState.user!, 'passwordHash'), false);
     const user = repository.userByEmail(input.email)!;
     const expired = await issueToken(user, { ...config, ttlSeconds: -1 });
     assert.equal((await call('/me', 'GET', undefined, expired)).status, 401);

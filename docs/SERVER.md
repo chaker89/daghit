@@ -26,6 +26,19 @@ npm run grant-owner --workspace @daghit/server -- person@example.com
 
 Log in again to receive updated JWT claims. The server checks current database capabilities on every protected request, including owner requests.
 
+## Carrying identity through a request
+
+Successful login/signup and authenticated requests populate the Koa context:
+
+```ts
+ctx.state.user        // Safe AuthenticatedUser: id, email, name, phone, types
+ctx.state.accessToken // Bearer token for a future explicit downstream request
+```
+
+Middleware and route handlers handling the same request share this context. `createRequestIdentity` selects safe fields from the verified database record; password hashes never enter this context. Client-supplied `body.user` fields are not used as identity or permissions. The original request body remains application input, so schema validation stays independent from authentication.
+
+A new HTTP call to another server does not inherit Koa context automatically. When that service exists, explicitly forward the bearer token in `Authorization`, and have the receiving service verify it and build its own context. Agree on the receiving service's JWT audience or token-exchange contract at that time. Do not forward the full Koa context, log its token, or trust identity fields from the body without token verification. No downstream service/call is implemented yet.
+
 ## Current server behavior
 
 Server code is organized as follows:
