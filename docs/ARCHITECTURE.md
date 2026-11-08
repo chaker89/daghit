@@ -42,3 +42,7 @@ The current prototype represents these as map/list listings. Their final provide
 ## Server implementation update
 
 A Koa server now lives in `projects/server`, with shared API contracts in `projects/typings` and Lerna/Nx affected builds. Earlier Laravel/no-backend notes are historical. See `SERVER.md` for current implementation, local SQLite adapter, limits, and setup. The local storage schema does not settle outstanding booking/payment/business rules.
+
+## Infrastructure scaffold
+
+`projects/infrastructure` is the AWS CDK v2 TypeScript workspace. The planned server target is Lambda. Its initial stack has no resources; database requirements and Lambda integration are pending. See `../projects/infrastructure/README.md` for setup and TODOs.

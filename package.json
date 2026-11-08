@@ -15,7 +15,8 @@
     "build": "lerna run build",
     "build:changed": "lerna run build --include-dependents --since",
     "test:server": "npm run test --workspace @daghit/server",
-    "check:changed": "node scripts/affected.mjs"
+    "check:changed": "node scripts/affected.mjs",
+    "infra:synth": "npm run synth --workspace @daghit/infrastructure"
   },
   "engines": {
     "node": ">=24"

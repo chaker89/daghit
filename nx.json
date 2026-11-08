@@ -7,7 +7,8 @@
       "!{projectRoot}/.expo/**/*",
       "!{projectRoot}/data/**/*",
       "!{projectRoot}/.env.local",
-      "!{projectRoot}/node_modules/**/*"
+      "!{projectRoot}/node_modules/**/*",
+      "!{projectRoot}/cdk.out/**/*"
     ],
     "sharedGlobals": [
       "{workspaceRoot}/package-lock.json",

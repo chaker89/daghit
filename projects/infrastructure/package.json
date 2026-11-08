@@ -1,0 +1,38 @@
+{
+  "name": "@daghit/infrastructure",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && cdk synth --quiet --lookups=false",
+    "synth": "npm run build",
+    "cdk": "cdk",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.275.0",
+    "constructs": "^10.8.1"
+  },
+  "devDependencies": {
+    "aws-cdk": "^2.1148.0",
+    "typescript": "~6.0.3",
+    "@types/node": "^24",
+    "eslint": "^9.39.5",
+    "@typescript-eslint/parser": "^8.72.1",
+    "@typescript-eslint/eslint-plugin": "^8.72.1"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "outputs": [
+          "{projectRoot}/dist",
+          "{projectRoot}/cdk.out"
+        ]
+      }
+    }
+  }
+}

@@ -46,3 +46,6 @@ example
 # Lerna/Nx task cache and local server data
 .nx/
 projects/server/data/
+
+# CDK synthesized cloud assemblies
+cdk.out/

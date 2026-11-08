@@ -4,6 +4,7 @@ Lebanon fitness marketplace in a Lerna/npm-workspaces monorepo.
 
 ```text
 projects/
+  infrastructure/ AWS CDK infrastructure
   mobile/       Expo React Native app
   server/       Koa API
   typings/      Shared API types
@@ -37,3 +38,5 @@ Run these commands from the repository root:
 Use the full build commands for newly created or uncommitted workspaces. These builds compile server code and export mobile bundles; they do not sign or submit native apps.
 
 See [API and session contract](docs/BACKEND_INTEGRATION.md), [reusable UI](docs/REUSABLE_UI.md), [product context](docs/PROJECT_SPECS.md), and [data model planning](docs/DATA_MODEL.md).
+
+Infrastructure: run `npm run infra:synth` to compile/synthesize the CDK scaffold locally. See [infrastructure setup](projects/infrastructure/README.md). Lambda and database resources are pending the next requirements; synthesis does not deploy.
